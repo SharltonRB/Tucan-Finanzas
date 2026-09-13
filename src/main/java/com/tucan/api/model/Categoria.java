@@ -1,0 +1,56 @@
+package com.tucan.api.model;
+
+/**
+ * Categorias permitidas para un movimiento: dos de ingreso y once de gasto.
+ *
+ * <p>La etiqueta es lo que se escribe en la columna D de la hoja, sin tildes y
+ * con la capitalizacion exacta de su lista desplegable.
+ *
+ * <p>Cada categoria guarda el {@link TipoMovimiento} al que pertenece. Sin eso
+ * nada impediria registrar un GASTO con categoria Salario, y el dashboard
+ * quedaria sucio en silencio; con eso, la regla cruzada de FIN-14 es una simple
+ * comparacion y el endpoint de categorias puede devolver la lista ya filtrada.
+ *
+ * <p>Este enum es el unico lugar donde se editan las categorias: agregar una es
+ * agregar una linea aca y otra en el menu del atajo.
+ */
+public enum Categoria {
+
+   SALARIO("Salario", TipoMovimiento.INGRESO),
+   OTROS_INGRESOS("Otros ingresos", TipoMovimiento.INGRESO),
+
+   ALIMENTACION("Alimentacion", TipoMovimiento.GASTO),
+   COMIDA_CHATARRA("Comida Chatarra", TipoMovimiento.GASTO),
+   TRANSPORTE("Transporte", TipoMovimiento.GASTO),
+   ALQUILER("Alquiler", TipoMovimiento.GASTO),
+   SERVICIOS("Servicios", TipoMovimiento.GASTO),
+   SALUD("Salud", TipoMovimiento.GASTO),
+   EDUCACION("Educacion", TipoMovimiento.GASTO),
+   ENTRETENIMIENTO("Entretenimiento", TipoMovimiento.GASTO),
+   ELECTRONICO("Electronico", TipoMovimiento.GASTO),
+
+   /**
+    * Va como GASTO, no como ingreso. Tratarla como ingreso duplicaria dinero: el
+    * salario ya se anoto una vez y el traslado al ahorro lo contaria de nuevo.
+    * Como gasto, el balance refleja la plata que queda disponible de verdad; el
+    * costo es que la tasa de ahorro del resumen sale mas baja que la real.
+    */
+   AHORRO_INVERSION("Ahorro/Inversion", TipoMovimiento.GASTO),
+   OTROS_GASTOS("Otros gastos", TipoMovimiento.GASTO);
+
+   private final String etiqueta;
+   private final TipoMovimiento tipo;
+
+   Categoria(String etiqueta, TipoMovimiento tipo) {
+      this.etiqueta = etiqueta;
+      this.tipo = tipo;
+   }
+
+   public String getEtiqueta() {
+      return etiqueta;
+   }
+
+   public TipoMovimiento getTipo() {
+      return tipo;
+   }
+}
