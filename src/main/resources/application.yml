@@ -1,3 +1,16 @@
 spring:
   application:
     name: tucan-api
+
+server:
+  # Cloud Run inyecta PORT automaticamente; en local cae al 8080.
+  port: ${PORT:8080}
+
+app:
+  # Sin valor por defecto: si falta la variable, la app no debe arrancar.
+  api-key: ${API_KEY}
+  zona-horaria: America/Costa_Rica
+  google:
+    credentials-base64: ${GOOGLE_CREDENTIALS_BASE64}
+    spreadsheet-id: ${SPREADSHEET_ID}
+    hoja: Movimientos

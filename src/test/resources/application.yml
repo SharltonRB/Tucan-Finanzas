@@ -1,0 +1,19 @@
+# Configuracion SOLO para los tests. Tiene precedencia sobre
+# src/main/resources/application.yml cuando corre `mvn test`.
+#
+# Valores ficticios a proposito: los tests no deben depender de que tengas
+# variables de entorno definidas, ni tocar la hoja de calculo real.
+spring:
+  application:
+    name: tucan-api
+
+server:
+  port: ${PORT:8080}
+
+app:
+  api-key: test-api-key
+  zona-horaria: America/Costa_Rica
+  google:
+    credentials-base64: eyJ0ZXN0IjoiZmFrZSJ9
+    spreadsheet-id: test-spreadsheet-id
+    hoja: Movimientos
