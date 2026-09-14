@@ -1,5 +1,6 @@
 package com.tucan.api.model;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,8 +20,9 @@ import java.time.LocalDate;
  * representan exactos los decimales en base 10, y con dinero ese error se acumula
  * en descuadres que despues nadie sabe explicar.
  *
- * <p>La coherencia entre {@code tipo} y {@code categoria} no se valida aca: cada
- * anotacion mira un campo a la vez. Esa regla cruzada llega en FIN-14.
+ * <p>Las anotaciones miran un campo a la vez; la coherencia entre {@code tipo} y
+ * {@code categoria} necesita mirar dos, y por eso va aparte, en
+ * {@link #isCategoriaCoherenteConElTipo()}.
  */
 public record MovimientoRequest(
 
@@ -42,4 +44,22 @@ public record MovimientoRequest(
 
       @NotNull(message = "El medio es obligatorio, tanto en ingresos como en gastos")
       Medio medio) {
+
+   /**
+    * Regla cruzada: un GASTO con categoria Salario tiene los dos campos validos
+    * por separado y aun asi es un dato invalido, que ensuciaria el dashboard.
+    *
+    * <p>Vive en el modelo y no en el controlador para que se ejecute junto al
+    * resto de las validaciones y produzca el mismo formato de error. Como cada
+    * {@link Categoria} ya sabe a que tipo pertenece, la regla es una comparacion.
+    *
+    * <p>Con {@code tipo} o {@code categoria} nulos devuelve {@code true} a
+    * proposito: de esos casos ya se encarga {@code @NotNull} con su propio
+    * mensaje, y dos errores sobre lo mismo solo confunden en la pantalla del
+    * iPhone.
+    */
+   @AssertTrue(message = "La categoria no corresponde al tipo de movimiento")
+   public boolean isCategoriaCoherenteConElTipo() {
+      return tipo == null || categoria == null || categoria.getTipo() == tipo;
+   }
 }

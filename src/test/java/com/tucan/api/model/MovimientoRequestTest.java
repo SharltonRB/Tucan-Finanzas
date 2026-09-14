@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class MovimientoRequestTest {
@@ -122,6 +123,57 @@ class MovimientoRequestTest {
       assertThat(peticion.categoria()).isEqualTo(Categoria.ALIMENTACION);
       assertThat(peticion.descripcion()).isEqualTo("Almuerzo");
       assertThat(peticion.medio()).isEqualTo(Medio.EFECTIVO);
+   }
+
+   @ParameterizedTest(name = "{0} con categoria {1}: valido={2}")
+   @DisplayName("la categoria tiene que corresponder al tipo del movimiento")
+   @CsvSource({
+      "GASTO,    ALIMENTACION,  true",
+      "GASTO,    SALARIO,       false",
+      "INGRESO,  SALARIO,       true",
+      "INGRESO,  ALIMENTACION,  false"
+   })
+   void categoriaYTipo_tienenQueCoincidir(
+         TipoMovimiento tipo, Categoria categoria, boolean esValido) {
+      var peticion = movimiento(tipo, categoria);
+
+      if (esValido) {
+         assertThat(validator.validate(peticion)).isEmpty();
+      } else {
+         assertThat(propiedadesConError(peticion)).containsExactly("categoriaCoherenteConElTipo");
+      }
+   }
+
+   @ParameterizedTest(name = "{0} sin categoria")
+   @DisplayName("sin categoria el error dice que falta, no que no coincide")
+   @CsvSource({"GASTO", "INGRESO"})
+   void categoriaNula_avisaQueFaltaYNoQueNoCoincide(TipoMovimiento tipo) {
+      var peticion = movimiento(tipo, null);
+
+      assertThat(validator.validate(peticion))
+            .singleElement()
+            .satisfies(violacion -> {
+               assertThat(violacion.getPropertyPath()).hasToString("categoria");
+               assertThat(violacion.getMessage()).contains("obligatoria");
+            });
+   }
+
+   @Test
+   @DisplayName("con el tipo nulo la regla cruzada no revienta con NullPointerException")
+   void tipoNulo_noLanzaNullPointerException() {
+      var peticion = movimiento(null, Categoria.ALIMENTACION);
+
+      assertThat(propiedadesConError(peticion)).containsExactly("tipo");
+   }
+
+   private static MovimientoRequest movimiento(TipoMovimiento tipo, Categoria categoria) {
+      return new MovimientoRequest(
+            tipo,
+            new BigDecimal("4500"),
+            LocalDate.of(2026, 9, 11),
+            categoria,
+            "Almuerzo",
+            Medio.EFECTIVO);
    }
 
    private static MovimientoRequest gasto(String monto, String descripcion) {
