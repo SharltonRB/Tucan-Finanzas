@@ -125,6 +125,29 @@ class MovimientoRequestTest {
       assertThat(peticion.medio()).isEqualTo(Medio.EFECTIVO);
    }
 
+   @Test
+   @DisplayName("Jackson deserializa el cuerpo real del atajo, con etiquetas en vez de constantes")
+   void jackson_deserializaElCuerpoConEtiquetas() throws Exception {
+      ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+      String json = """
+            {
+              "tipo": "Gasto",
+              "monto": 4500,
+              "fecha": "2026-09-11",
+              "categoria": "Alimentacion",
+              "descripcion": "Almuerzo",
+              "medio": "SINPE Movil"
+            }
+            """;
+
+      var peticion = mapper.readValue(json, MovimientoRequest.class);
+
+      assertThat(peticion.tipo()).isEqualTo(TipoMovimiento.GASTO);
+      assertThat(peticion.categoria()).isEqualTo(Categoria.ALIMENTACION);
+      assertThat(peticion.medio()).isEqualTo(Medio.SINPE_MOVIL);
+      assertThat(validator.validate(peticion)).isEmpty();
+   }
+
    @ParameterizedTest(name = "{0} con categoria {1}: valido={2}")
    @DisplayName("la categoria tiene que corresponder al tipo del movimiento")
    @CsvSource({

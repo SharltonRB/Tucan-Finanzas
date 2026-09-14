@@ -1,5 +1,7 @@
 package com.tucan.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Naturaleza de un movimiento: plata que entra o plata que sale.
  *
@@ -19,5 +21,14 @@ public enum TipoMovimiento {
 
    public String getEtiqueta() {
       return etiqueta;
+   }
+
+   /**
+    * Resuelve el texto que llega en el JSON. El atajo manda "GASTO", pero la
+    * etiqueta de la hoja es "Gasto" y las dos tienen que servir.
+    */
+   @JsonCreator
+   public static TipoMovimiento desde(String valor) {
+      return Etiquetas.resolver(values(), valor, "Tipo de movimiento no reconocido");
    }
 }

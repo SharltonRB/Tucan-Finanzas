@@ -1,5 +1,7 @@
 package com.tucan.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Categorias permitidas para un movimiento: dos de ingreso y once de gasto.
  *
@@ -52,5 +54,17 @@ public enum Categoria {
 
    public TipoMovimiento getTipo() {
       return tipo;
+   }
+
+   /**
+    * Resuelve el texto que llega en el JSON: acepta la etiqueta de la hoja, el
+    * nombre de la constante, tildes, cualquier capitalizacion y espacios de sobra.
+    *
+    * <p>Un texto vacio devuelve {@code null} y lo rechaza despues la validacion,
+    * con un mensaje mas util que el de una excepcion de deserializacion.
+    */
+   @JsonCreator
+   public static Categoria desde(String valor) {
+      return Etiquetas.resolver(values(), valor, "Categoria no reconocida");
    }
 }

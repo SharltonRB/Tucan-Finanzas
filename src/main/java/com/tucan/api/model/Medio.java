@@ -1,5 +1,7 @@
 package com.tucan.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Como se movio la plata. Aplica igual a ingresos y a gastos, por eso se llama
  * {@code Medio} y no {@code MedioPago}: en un ingreso no estas pagando nada.
@@ -31,5 +33,14 @@ public enum Medio {
 
    public boolean isEfectivo() {
       return efectivo;
+   }
+
+   /**
+    * Resuelve el texto que llega en el JSON. Con esto "SINPE Movil",
+    * "SINPE Movil" con tilde y "sinpe movil" son todos el mismo medio.
+    */
+   @JsonCreator
+   public static Medio desde(String valor) {
+      return Etiquetas.resolver(values(), valor, "Medio no reconocido");
    }
 }
