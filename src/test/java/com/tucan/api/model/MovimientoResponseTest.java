@@ -35,4 +35,42 @@ class MovimientoResponseTest {
       assertThat(json).isEqualTo("""
             {"mensaje":"Gasto guardado correctamente","tipo":"GASTO","monto":4500,"fecha":"2026-09-11"}""");
    }
+
+   @Test
+   @DisplayName("el mensaje de confirmacion nombra el tipo que se acaba de guardar")
+   void de_armaElMensajeSegunElTipo() {
+      assertThat(MovimientoResponse.de(gasto()).mensaje()).isEqualTo("Gasto guardado correctamente");
+      assertThat(MovimientoResponse.de(ingreso()).mensaje())
+            .isEqualTo("Ingreso guardado correctamente");
+   }
+
+   @Test
+   @DisplayName("la respuesta es el eco del movimiento guardado")
+   void de_copiaTipoMontoYFecha() {
+      MovimientoResponse respuesta = MovimientoResponse.de(gasto());
+
+      assertThat(respuesta.tipo()).isEqualTo(TipoMovimiento.GASTO);
+      assertThat(respuesta.monto()).isEqualByComparingTo("4500");
+      assertThat(respuesta.fecha()).isEqualTo(LocalDate.of(2026, 9, 11));
+   }
+
+   private static MovimientoRequest gasto() {
+      return new MovimientoRequest(
+            TipoMovimiento.GASTO,
+            new BigDecimal("4500"),
+            LocalDate.of(2026, 9, 11),
+            Categoria.ALIMENTACION,
+            "Almuerzo",
+            Medio.EFECTIVO);
+   }
+
+   private static MovimientoRequest ingreso() {
+      return new MovimientoRequest(
+            TipoMovimiento.INGRESO,
+            new BigDecimal("650000"),
+            LocalDate.of(2026, 9, 15),
+            Categoria.SALARIO,
+            null,
+            Medio.SINPE_MOVIL);
+   }
 }

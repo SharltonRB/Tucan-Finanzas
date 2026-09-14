@@ -14,4 +14,21 @@ public record MovimientoResponse(
       TipoMovimiento tipo,
       BigDecimal monto,
       LocalDate fecha) {
+
+   private static final String CONFIRMACION = " guardado correctamente";
+
+   /**
+    * Arma la confirmacion de lo que se acaba de guardar: "Ingreso guardado
+    * correctamente" o "Gasto guardado correctamente", segun el tipo.
+    *
+    * <p>El mensaje se arma aca y no en el controlador para que la puerta de entrada
+    * HTTP se quede sin nada que decidir.
+    */
+   public static MovimientoResponse de(MovimientoRequest movimiento) {
+      return new MovimientoResponse(
+            movimiento.tipo().getEtiqueta() + CONFIRMACION,
+            movimiento.tipo(),
+            movimiento.monto(),
+            movimiento.fecha());
+   }
 }

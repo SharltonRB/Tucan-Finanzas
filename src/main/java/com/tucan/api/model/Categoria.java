@@ -1,6 +1,11 @@
 package com.tucan.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Categorias permitidas para un movimiento: dos de ingreso y once de gasto.
@@ -66,5 +71,26 @@ public enum Categoria {
    @JsonCreator
    public static Categoria desde(String valor) {
       return Etiquetas.resolver(values(), valor, "Categoria no reconocida");
+   }
+
+   /**
+    * Las etiquetas agrupadas por tipo, que es lo que el atajo necesita para armar
+    * sus dos menus. Con {@code filtro} nulo devuelve las dos ramas de una sola vez
+    * y se ahorra una peticion; con un tipo, solo esa.
+    *
+    * <p>Vive aca y no en el controlador porque es una pregunta sobre el dominio, y
+    * porque asi agregar una categoria sigue siendo una sola linea en este enum.
+    *
+    * <p>El {@link EnumMap} y el orden de encuentro del {@code groupingBy} hacen que
+    * las etiquetas salgan en el orden de declaracion, que es el orden en que se ven
+    * en la pantalla del iPhone.
+    */
+   public static Map<TipoMovimiento, List<String>> etiquetasPorTipo(TipoMovimiento filtro) {
+      return Arrays.stream(values())
+            .filter(categoria -> filtro == null || categoria.tipo == filtro)
+            .collect(Collectors.groupingBy(
+                  Categoria::getTipo,
+                  () -> new EnumMap<>(TipoMovimiento.class),
+                  Collectors.mapping(Categoria::getEtiqueta, Collectors.toList())));
    }
 }
