@@ -1,0 +1,24 @@
+meta {
+  name: 01 - Ping
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/ping
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: eq pong
+}
+
+docs {
+  Sirve para saber si la API esta despierta.
+
+  Es la unica ruta sin API key, a proposito: asi se puede sondear desde afuera
+  sin exponer la key en ningun lado. Por eso esta peticion no manda el header
+  X-API-Key y las otras tres si.
+}

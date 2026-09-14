@@ -1,0 +1,45 @@
+meta {
+  name: 04 - Crear ingreso
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "INGRESO",
+    "monto": 650000,
+    "fecha": "2026-09-15",
+    "categoria": "Salario",
+    "medio": "SINPE Movil"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.mensaje: eq Ingreso guardado correctamente
+}
+
+docs {
+  Un ingreso, que es el otro camino feliz.
+
+  No lleva descripcion: por eso la columna E de la hoja tiene que quedar
+  VACIA, que es el criterio de aceptacion de FIN-21 para esta peticion.
+
+  Ojo con la categoria. El "Contrato de la API" del backlog muestra este
+  cuerpo sin categoria, pero ese ejemplo quedo viejo: desde FIN-13 la
+  categoria es obligatoria tanto en ingresos como en gastos, y desde FIN-14
+  ademas tiene que corresponder al tipo. Un ingreso sin categoria hoy
+  responde 400, no 201. Por eso va "Salario", que es justo lo que muestra la
+  tabla de la estructura de la hoja para la fila de ingreso.
+}

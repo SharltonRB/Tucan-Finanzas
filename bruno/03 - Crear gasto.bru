@@ -1,0 +1,46 @@
+meta {
+  name: 03 - Crear gasto
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 4500,
+    "fecha": "2026-09-11",
+    "categoria": "Alimentacion",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.mensaje: eq Gasto guardado correctamente
+}
+
+docs {
+  El camino feliz: un gasto completo.
+
+  Este es el momento de la verdad del proyecto. Que responda 201 no alcanza:
+  hay que abrir la hoja de Google Sheets y confirmar que aparecio la fila.
+
+  Que mirar en la hoja, ademas de que la fila este:
+  - La fecha (columna A) y el monto (columna C) tienen que quedar alineados a
+    la DERECHA. Si se ven a la izquierda, entraron como texto y hay que volver
+    a revisar la opcion de entrada de valores de FIN-17.
+  - La columna F (timestamp) es cuando se registro, y es distinta de la fecha
+    del movimiento.
+}

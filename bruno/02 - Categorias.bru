@@ -1,0 +1,31 @@
+meta {
+  name: 02 - Categorias
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/categorias
+  body: none
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.INGRESO: isDefined
+  res.body.GASTO: isDefined
+}
+
+docs {
+  Las etiquetas que el atajo usa para armar sus dos menus.
+
+  Sin parametros devuelve las dos ramas juntas, en una sola peticion. Con
+  ?tipo=Gasto o ?tipo=GASTO devuelve solo esa rama; las dos formas valen.
+
+  Criterio de aceptacion de FIN-21: la respuesta tiene que distinguir las
+  categorias de ingreso de las de gasto. Son 2 de ingreso y 11 de gasto.
+}
