@@ -1,0 +1,95 @@
+#!/bin/sh
+#
+# Rechaza el commit si algun archivo preparado trae un secreto escrito literal.
+#
+# Existe por un incidente real, no por precaucion teorica: Bruno reescribe los
+# archivos .bru con lo que uno teclea en su interfaz, asi que la API key puede
+# terminar dentro de un archivo versionado sin que nadie haya decidido ponerla
+# ahi. Como el repositorio es publico, eso llegaria a GitHub en segundos, y hay
+# bots que escanean GitHub buscando exactamente esto.
+#
+# El .gitignore no cubre este caso: los .bru SI van al repositorio a proposito,
+# lo que no debe ir es su contenido cuando trae la key en vez de la variable.
+#
+# Para activarlo, una sola vez por clon:
+#
+#     git config core.hooksPath .githooks
+#
+# Para saltarlo en un commit puntual: git commit --no-verify
+
+set -eu
+
+ROJO='\033[0;31m'
+AMARILLO='\033[0;33m'
+FIN='\033[0m'
+
+hallazgos=0
+
+reportar() {
+   printf "${ROJO}  - %s${FIN}\n" "$1"
+   hallazgos=$((hallazgos + 1))
+}
+
+# La cabecera tiene que mandar la variable, nunca el valor. Se acepta cualquier
+# {{...}} y se rechaza todo lo demas que no este vacio.
+revisar_api_key() {
+   archivo="$1"
+   if git show ":$archivo" | grep -qE '^[[:space:]]*X-API-Key:[[:space:]]*[^{[:space:]]'; then
+      reportar "$archivo trae la API key en el header. Deberia decir {{apiKey}}."
+   fi
+}
+
+# Una llave de cuenta de servicio no tiene por que aparecer en ningun archivo,
+# sea cual sea su nombre o su extension.
+#
+# Las dos cadenas se arman por partes a proposito. Si estuvieran enteras, este
+# archivo contendria lo que el propio hook busca y se denunciaria a si mismo.
+# Paso exactamente eso en el commit que lo agregaba. La alternativa era dejar
+# a .githooks fuera de la revision, pero eso abre un hueco justo donde no
+# conviene tenerlo.
+revisar_credenciales() {
+   archivo="$1"
+
+   llave='"private'
+   llave="${llave}_key\""
+
+   cuenta='"service'
+   cuenta="${cuenta}_account\""
+
+   if git show ":$archivo" | grep -qE "BEGIN [A-Z ]*PRIVATE KEY|${llave}|${cuenta}"; then
+      reportar "$archivo parece traer una credencial de Google."
+   fi
+}
+
+# La lista va por un archivo y no por una tuberia: con la tuberia el while
+# correria en una subshell y el contador de hallazgos se perderia al terminar.
+lista=$(mktemp)
+trap 'rm -f "$lista"' EXIT
+
+# El -z es necesario, no decorativo: sin el, git escapa los nombres que traen
+# acentos o eñes ("se\303\261uelo.json") y ese nombre escapado despues no
+# resuelve contra el indice. Se convierten los NUL en saltos de linea para
+# poder leerlos con read.
+git diff --cached --name-only --diff-filter=ACM -z | tr '\0' '\n' > "$lista"
+
+while IFS= read -r archivo; do
+   [ -n "$archivo" ] || continue
+
+   case "$archivo" in
+      *.bru) revisar_api_key "$archivo" ;;
+   esac
+
+   revisar_credenciales "$archivo"
+done < "$lista"
+
+if [ "$hallazgos" -gt 0 ]; then
+   printf "\n${ROJO}Commit detenido: hay $hallazgos posible(s) secreto(s).${FIN}\n\n"
+   printf "${AMARILLO}Si es un .bru, el valor va en el environment Local, no en la peticion:${FIN}\n"
+   printf "  1. Deja el header como  X-API-Key: {{apiKey}}\n"
+   printf "  2. En Bruno, environment Local, pon el valor en la variable apiKey\n"
+   printf "     (esta declarada como secreta, asi que no se escribe en disco)\n\n"
+   printf "Para saltar esta revision: git commit --no-verify\n\n"
+   exit 1
+fi
+
+exit 0
