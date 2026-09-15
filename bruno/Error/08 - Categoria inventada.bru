@@ -1,0 +1,46 @@
+meta {
+  name: 08 - Categoria inventada
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 4500,
+    "fecha": "2026-09-11",
+    "categoria": "Criptomonedas",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq No se pudo leer el movimiento que mandaste
+  res.body.detalle: contains Criptomonedas
+}
+
+docs {
+  Una categoria que no existe en el enum.
+  
+  Ojo con la forma de la respuesta: esta NO trae el mapa "campos". El valor
+  revienta al deserializar, antes de que la validacion llegue a correr, asi que
+  cae en otra rama del manejador y la causa viaja en "detalle".
+  
+  El criterio de aceptacion de FIN-22 pide que el mensaje mencione el valor
+  recibido, y por eso el assert busca "Criptomonedas" dentro del detalle: sin
+  esa palabra, desde el iPhone no hay forma de saber cual de los campos hay que
+  corregir.
+}

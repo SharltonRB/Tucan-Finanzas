@@ -1,0 +1,43 @@
+meta {
+  name: 06 - Monto negativo
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": -100,
+    "fecha": "2026-09-11",
+    "categoria": "Alimentacion",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq Hay datos invalidos en el movimiento
+  res.body.campos.monto: eq El monto tiene que ser mayor que cero
+}
+
+docs {
+  Un gasto de menos cien colones no es una devolucion: es un error de tecleo.
+  
+  El signo se prueba aparte del cero (peticion 07) porque son dos maneras
+  distintas de romper el mismo @DecimalMin y conviene ver fallar las dos.
+  
+  Si alguna vez hace falta registrar devoluciones, van como INGRESO, nunca como
+  un GASTO negativo.
+}

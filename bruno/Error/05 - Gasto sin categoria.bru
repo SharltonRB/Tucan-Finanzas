@@ -1,0 +1,44 @@
+meta {
+  name: 05 - Gasto sin categoria
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 4500,
+    "fecha": "2026-09-11",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq Hay datos invalidos en el movimiento
+  res.body.campos.categoria: eq La categoria es obligatoria, tanto en ingresos como en gastos
+}
+
+docs {
+  Falta un campo obligatorio: aqui se prueba el @NotNull de FIN-13.
+
+  El contrato pide categoria tanto en gastos como en ingresos, aunque el atajo
+  del iPhone siempre la mande. La validacion no se fia del cliente.
+
+  La respuesta trae el mapa "campos", que dice que campo fallo y por que. Ese
+  formato es el de FIN-20 y es el que el atajo muestra en pantalla.
+
+  Despues de correrla, abri la hoja: no tiene que haber ninguna fila nueva.
+}

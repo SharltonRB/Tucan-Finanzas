@@ -1,0 +1,48 @@
+meta {
+  name: 10 - Sin API key
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 4500,
+    "fecha": "2026-09-11",
+    "categoria": "Alimentacion",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 401
+  res.body.error: eq API key invalida o ausente. Revisa el header X-API-Key.
+}
+
+docs {
+  La unica de las ocho que no responde 400, y la unica cuyo cuerpo es valido.
+  
+  Aqui no falla el dato sino la puerta: sin el header X-API-Key el filtro corta
+  la peticion antes del controlador. Fijate que este archivo no declara el
+  header, a diferencia de las otras siete.
+  
+  Que responda 401 y no 400 importa: son dos problemas distintos y el atajo
+  tiene que poder distinguirlos. Un 400 dice "arregla el dato"; un 401 dice
+  "arregla la configuracion".
+  
+  El mensaje nunca dice si el header faltaba o si la key estaba mal. Esa
+  diferencia solo le sirve a quien esta probando la puerta.
+  
+  Este es el caso que FIN-19 dejo sin verificar.
+}

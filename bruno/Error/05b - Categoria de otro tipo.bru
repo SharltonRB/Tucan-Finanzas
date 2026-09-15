@@ -1,0 +1,47 @@
+meta {
+  name: 05b - Categoria de otro tipo
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 4500,
+    "fecha": "2026-09-11",
+    "categoria": "Salario",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq Hay datos invalidos en el movimiento
+  res.body.campos.categoriaCoherenteConElTipo: eq La categoria no corresponde al tipo de movimiento
+}
+
+docs {
+  El caso de FIN-14, y el mas interesante de los ocho.
+
+  Los dos campos son validos por separado: GASTO existe y Salario existe. Lo
+  que no existe es la combinacion. Ninguna anotacion que mire un campo a la vez
+  puede detectar esto, por eso vive en el @AssertTrue del modelo.
+
+  El nombre de la llave en "campos" es categoriaCoherenteConElTipo: sale del
+  getter isCategoriaCoherenteConElTipo(), no de un campo del JSON. Es feo, pero
+  el mensaje que lo acompana es el que se lee en pantalla.
+
+  Un 201 aqui significa que el dashboard va a sumar un gasto como ingreso.
+}

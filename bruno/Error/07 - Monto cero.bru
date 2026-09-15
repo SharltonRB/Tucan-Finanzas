@@ -1,0 +1,41 @@
+meta {
+  name: 07 - Monto cero
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 0,
+    "fecha": "2026-09-11",
+    "categoria": "Alimentacion",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq Hay datos invalidos en el movimiento
+  res.body.campos.monto: eq El monto tiene que ser mayor que cero
+}
+
+docs {
+  El limite exacto. Un movimiento de cero no aporta nada al dashboard y casi
+  siempre es un campo que quedo vacio en el atajo.
+  
+  Esta peticion es la que justifica el inclusive = false del @DecimalMin: con
+  el valor por omision, el cero pasaria y esta prueba daria 201.
+}

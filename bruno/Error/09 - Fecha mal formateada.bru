@@ -1,0 +1,49 @@
+meta {
+  name: 09 - Fecha mal formateada
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/movimientos
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: {{apiKey}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipo": "GASTO",
+    "monto": 4500,
+    "fecha": "11/09/2026",
+    "categoria": "Alimentacion",
+    "descripcion": "Almuerzo",
+    "medio": "Efectivo"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq No se pudo leer el movimiento que mandaste
+  res.body.detalle: eq La fecha no existe o no viene como aaaa-mm-dd. Ejemplo: 2026-09-11.
+}
+
+docs {
+  La peticion mas importante de las ocho, aunque no lo parezca.
+  
+  Confirma que el formato de fecha es estricto: el unico que la API acepta es
+  aaaa-mm-dd. El "11/09/2026" de aqui es exactamente lo que escribiria una
+  persona, y exactamente lo que la API rechaza.
+  
+  ANOTA ESTE DATO. En FIN-29 hay que configurar el atajo del iPhone para que
+  mande la fecha con formato aaaa-mm-dd. Si mas adelante el atajo devuelve un
+  400 que no se explica, este es el primer lugar donde mirar.
+  
+  El mismo camino cubre una fecha imposible como "2026-13-45": el manejador no
+  reenvia el mensaje de Java (viene en ingles y nombra sus propias clases) sino
+  esta frase, que dice el formato y da un ejemplo.
+}
