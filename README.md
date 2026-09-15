@@ -4,9 +4,10 @@
 
 [Español](README.es.md) · Java 21 · Spring Boot 3.3 · Google Sheets API · Cloud Run
 
-> **Status: in progress.** The skeleton and configuration layer are built and tested.
-> The REST API, the Sheets integration and the iOS Shortcut are next. See
-> [Roadmap](#roadmap) for exactly what exists today.
+> **Status: in progress.** The API is done and writing to the real spreadsheet — domain
+> model, validation, Sheets integration, error handling and API key filter, covered by
+> 114 tests. Deployment and the iOS Shortcut are next. See [Roadmap](#roadmap) for
+> exactly what exists today.
 
 ---
 
@@ -206,12 +207,16 @@ Built as a 46-ticket backlog. Where things stand:
 - [x] Infrastructure: Cloud project, service account, spreadsheet, budget alert
 - [x] Spring Boot skeleton — builds, boots, tests green
 - [x] Externalised configuration with fail-fast validation
+- [x] Domain enums, request DTOs and cross-field validation
+- [x] Authenticated Google Sheets client and row writes
+- [x] REST endpoints and API key filter
+- [x] Centralised error handling with a single response shape
+- [x] Bruno collection, including eight requests that must fail
+- [x] Secret protection: `.gitignore` plus a versioned pre-commit hook
+
+The API is feature-complete and writes to the live spreadsheet. 114 tests pass.
 
 **Next — Milestone 1: usable from the phone**
-- [ ] Domain enums, request DTOs and cross-field validation
-- [ ] Authenticated Google Sheets client and row writes
-- [ ] REST endpoints and API key filter
-- [ ] Error handling and a Bruno request collection
 - [ ] Dockerfile, Secret Manager, Cloud Run deployment
 - [ ] iOS Shortcut and Control Center access
 

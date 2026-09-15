@@ -4,8 +4,9 @@
 
 [English](README.md) · Java 21 · Spring Boot 3.3 · Google Sheets API · Cloud Run
 
-> **Estado: en construcción.** El esqueleto y la capa de configuración están hechos y
-> probados. Siguen la API REST, la integración con Sheets y el atajo de iOS. En el
+> **Estado: en construcción.** La API está hecha y ya escribe en la hoja real: modelo
+> del dominio, validación, integración con Sheets, manejo de errores y filtro de API
+> key, con 114 tests que lo cubren. Siguen el despliegue y el atajo de iOS. En el
 > [Roadmap](#roadmap) está exactamente qué existe hoy.
 
 ---
@@ -208,12 +209,16 @@ Construido como un backlog de 46 tickets. Dónde va la cosa:
 - [x] Infraestructura: proyecto en Cloud, cuenta de servicio, hoja, alerta de presupuesto
 - [x] Esqueleto de Spring Boot — compila, arranca, tests en verde
 - [x] Configuración externalizada con validación fail-fast
+- [x] Enums del dominio, DTOs de petición y validación cruzada
+- [x] Cliente autenticado de Google Sheets y escritura de filas
+- [x] Endpoints REST y filtro de API key
+- [x] Manejo de errores centralizado, con un solo formato de respuesta
+- [x] Colección de Bruno, incluidas ocho peticiones que tienen que fallar
+- [x] Protección de secretos: `.gitignore` y un hook de pre-commit versionado
+
+La API está completa y escribe en la hoja real. Pasan 114 tests.
 
 **Sigue — Hito 1: usable desde el teléfono**
-- [ ] Enums del dominio, DTOs de petición y validación cruzada
-- [ ] Cliente autenticado de Google Sheets y escritura de filas
-- [ ] Endpoints REST y filtro de API key
-- [ ] Manejo de errores y colección de peticiones en Bruno
 - [ ] Dockerfile, Secret Manager, despliegue en Cloud Run
 - [ ] Atajo de iOS y acceso desde el Centro de Control
 
