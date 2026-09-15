@@ -166,6 +166,13 @@ shell:
 The app starts on port 8080, or on `$PORT` if defined — which is what Cloud Run sets
 automatically.
 
+If you plan to commit, enable the pre-commit hook once per clone. Git does not version
+hook configuration, so cloning is not enough:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 To confirm the fail-fast behaviour works, unset any of the three and start it again: it
 should refuse to boot and name the missing variable.
 
@@ -177,6 +184,11 @@ Nothing sensitive lives in this repository, and the layout makes that hard to ge
   above it**, outside the repo — git cannot see them even by accident.
 - `.gitignore` also blocks credential files, `.env`, local Spring profiles and key
   material by name, in case one is ever copied inside.
+- A versioned pre-commit hook (`.githooks/pre-commit`) rejects the commit if a staged
+  file carries a literal secret. `.gitignore` cannot cover this: the Bruno `.bru` files
+  *are* meant to be versioned, and Bruno rewrites them with whatever you type into its
+  UI — so the API key can end up inside a tracked file without anyone deciding to put it
+  there. It happened during development, which is why the hook exists.
 - The config file contains only **variable names**, never values.
 - In production, secrets are injected by Cloud Run from Secret Manager at container
   start.

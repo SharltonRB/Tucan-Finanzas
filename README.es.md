@@ -168,6 +168,13 @@ configura automáticamente.
 Para comprobar que el arranque fail-fast funciona, quitá cualquiera de las tres y
 arrancá de nuevo: debe negarse a iniciar y decir cuál falta.
 
+Si vas a commitear, activá una vez el hook de pre-commit. Git no versiona la
+configuración de los hooks, así que clonar no alcanza:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## Seguridad
 
 En este repositorio no vive nada sensible, y la estructura hace difícil equivocarse:
@@ -177,6 +184,12 @@ En este repositorio no vive nada sensible, y la estructura hace difícil equivoc
   accidente.
 - El `.gitignore` además bloquea por nombre archivos de credenciales, `.env`, perfiles
   locales de Spring y material criptográfico, por si alguna vez se copia uno adentro.
+- Un hook de pre-commit versionado (`.githooks/pre-commit`) rechaza el commit si algún
+  archivo preparado trae un secreto escrito literal. El `.gitignore` no puede cubrir
+  este caso: los `.bru` de Bruno **sí** se versionan a propósito, y Bruno los reescribe
+  con lo que uno teclea en su interfaz, así que la API key puede terminar dentro de un
+  archivo seguido sin que nadie lo haya decidido. Pasó durante el desarrollo, y por eso
+  existe el hook.
 - El archivo de configuración contiene solo **nombres** de variables, nunca valores.
 - En producción, Cloud Run inyecta los secretos desde Secret Manager al arrancar el
   contenedor.
