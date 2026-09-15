@@ -45,8 +45,15 @@ public class MovimientoService {
     */
    private static final String ENTRADA_COMO_SI_LA_ESCRIBIERAS = "USER_ENTERED";
 
-   /** Agrega filas nuevas en vez de pisar lo que ya haya debajo. */
-   private static final String INSERTAR_FILAS = "INSERT_ROWS";
+   /**
+    * Escribe en las celdas vacias que ya existen debajo de los datos, en vez de
+    * insertar una fila nueva. La diferencia no es cosmetica: una fila insertada
+    * hereda el formato de la de arriba, asi que las primeras quedaban con el azul
+    * y la negrita del encabezado y sin las listas desplegables de la plantilla.
+    * No pisa nada porque {@code append} arranca igual despues de la ultima fila
+    * con datos.
+    */
+   private static final String SIN_INSERTAR_FILAS = "OVERWRITE";
 
    private final Sheets sheets;
    private final AppProperties propiedades;
@@ -63,7 +70,7 @@ public class MovimientoService {
             .values()
             .append(propiedades.google().spreadsheetId(), rango(), fila)
             .setValueInputOption(ENTRADA_COMO_SI_LA_ESCRIBIERAS)
-            .setInsertDataOption(INSERTAR_FILAS)
+            .setInsertDataOption(SIN_INSERTAR_FILAS)
             .execute();
 
       log.info("movimiento_guardado tipo={} monto={}", movimiento.tipo(), movimiento.monto());

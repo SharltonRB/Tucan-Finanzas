@@ -98,12 +98,12 @@ class MovimientoServiceTest {
    }
 
    @Test
-   @DisplayName("deja que Sheets interprete fecha y monto, y agrega la fila sin pisar nada")
-   void usaUserEnteredEInsertRows() throws Exception {
+   @DisplayName("deja que Sheets interprete fecha y monto, y escribe sin insertar filas")
+   void usaUserEnteredYOverwrite() throws Exception {
       servicio.agregar(gasto());
 
       verify(append).setValueInputOption("USER_ENTERED");
-      verify(append).setInsertDataOption("INSERT_ROWS");
+      verify(append).setInsertDataOption("OVERWRITE");
    }
 
    private static MovimientoRequest gasto() {
