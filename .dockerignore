@@ -1,0 +1,47 @@
+# Lo que no entra en el contexto que se le manda al demonio de Docker.
+#
+# Docker empaqueta toda la carpeta y se la envia antes de leer una sola linea
+# del Dockerfile. Sin este archivo viajaria target/ entero y el historial de
+# git, que no se usan para construir nada.
+#
+# El segundo motivo es la cache: Docker invalida una capa cuando cambia
+# cualquier archivo del contexto que esa capa copia. Sin excluir target/, un
+# build local dejaria la cache inservible sin haber tocado el codigo.
+
+# Artefactos de compilacion: el .jar lo produce la etapa 1 desde cero.
+target/
+
+# Historial y configuracion de git
+.git/
+.gitignore
+.gitattributes
+.githooks/
+
+# Nunca deben acabar dentro de una imagen
+*credenciales*.json
+*credentials*.json
+service-account*.json
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+application-local.yml
+application-local.yaml
+application-local.properties
+
+# Herramientas y documentacion que no intervienen en el build
+bruno/
+.idea/
+.vscode/
+*.iml
+README.md
+README.es.md
+HELP.md
+Dockerfile
+.dockerignore
+
+# macOS
+.DS_Store
+**/.DS_Store
